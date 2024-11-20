@@ -1,0 +1,10 @@
+[package]
+name = "handshake_demo"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-std = { version = "1.13.0", features = ["attributes"] }
+env_logger = "0.11.5"
+libp2p_handshake_lib = { version = "0.1.0", path = ".." }
+log = "0.4.22"

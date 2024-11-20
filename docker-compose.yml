@@ -1,0 +1,42 @@
+x-rust-img: &rust-img
+  image: rust:1.81
+
+x-rust-env: &rust-env
+  RUST_LOG: ${RUST_LOG}
+
+x-rust-svc: &rust-svc
+  user: $PUID:$PGID
+  working_dir: /app
+  environment:
+    <<: *rust-env
+  volumes:
+    - .:/app
+    - ./.data/rust:/usr/local/cargo/registry
+
+services:
+  remote:
+    <<: [*rust-img, *rust-svc]
+    environment:
+      <<: *rust-env
+      HANDSHAKE_TARGET_ADDR: /dns4/ipfs/tcp/4001
+
+  local:
+    <<: [*rust-img, *rust-svc]
+    network_mode: "service:ipfs"
+    environment:
+      <<: *rust-env
+      HANDSHAKE_TARGET_ADDR: /ip4/127.0.0.1/tcp/4001
+
+  ipfs:
+    container_name: handshake-ipfs
+    image: ipfs/kubo:v0.30.0
+    user: $PUID:$PGID
+    environment:
+      IPFS_LOGGING: error,upgrader=debug
+    volumes:
+      - ./.data/ipfs:/data/ipfs
+
+  dev:
+    <<: *rust-svc
+    build:
+      context: ./docker/app
